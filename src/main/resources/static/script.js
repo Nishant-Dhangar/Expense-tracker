@@ -5,6 +5,7 @@
 
 let USER_ID = null;
 let loggedInUser = null;
+let transactions = [];
 
 
 // ==============================
@@ -49,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Load dashboard data
         await loadTransactions();
         await loadCategories();
-
+        await loadBudget();
 
         // Set today's date
         const dateInput =
@@ -64,15 +65,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
 
-    } catch (error) {
-
-        console.error(
-            "Failed to initialize dashboard:",
-            error
-        );
-
-        window.location.replace("login.html");
-    }
+    }  catch (error) {
+    console.error("DASHBOARD INITIALIZATION ERROR:", error);
+}
 
 });
 
@@ -93,7 +88,7 @@ async function loadTransactions() {
             throw new Error("Failed to load transactions");
         }
 
-        const transactions = await response.json();
+        transactions = await response.json();
 
         displayTransactions(transactions);
 updateSummary(transactions);
@@ -695,4 +690,214 @@ async function logout() {
         window.location.replace("login.html");
 
     }
+}
+// ==============================
+// MONTHLY BUDGET
+// ==============================
+
+async function loadBudget() {
+
+    const now = new Date();
+
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    try {
+
+        const response = await fetch(
+            `/api/budgets/${year}/${month}`
+        );
+
+        if (response.status === 404) {
+            updateBudgetDisplay(0);
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error("Failed to load budget");
+        }
+
+        const budget = await response.json();
+
+        document.getElementById("budgetAmount").value =
+            budget.amount;
+
+        updateBudgetDisplay(
+            Number(budget.amount)
+        );
+
+    } catch (error) {
+
+        console.error("Budget loading error:", error);
+
+    }
+}
+
+
+// SAVE / UPDATE BUDGET
+async function saveBudget() {
+
+    const amountInput =
+        document.getElementById("budgetAmount");
+
+    const amount =
+        Number(amountInput.value);
+
+    if (!amount || amount <= 0) {
+        alert("Please enter a valid budget amount.");
+        return;
+    }
+
+    const now = new Date();
+
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    try {
+
+        const response = await fetch(
+            "/api/budgets",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    month: month,
+                    year: year,
+                    amount: amount
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to save budget");
+        }
+
+        const budget = await response.json();
+
+        updateBudgetDisplay(
+            Number(budget.amount)
+        );
+
+        alert("Budget saved successfully!");
+
+    } catch (error) {
+
+        console.error("Budget save error:", error);
+
+        alert("Failed to save budget.");
+    }
+}
+
+
+// UPDATE BUDGET UI
+function updateBudgetDisplay(budgetAmount) {
+
+    const budgetTotal =
+        document.getElementById("budgetTotal");
+
+    const budgetSpent =
+        document.getElementById("budgetSpent");
+
+    const budgetRemaining =
+        document.getElementById("budgetRemaining");
+
+    const budgetProgress =
+        document.getElementById("budgetProgress");
+
+    const budgetPercentage =
+        document.getElementById("budgetPercentage");
+
+
+    // Get current expenses
+    let spent = 0;
+
+if (typeof transactions !== "undefined") {
+
+    const now = new Date();
+
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    spent = transactions
+        .filter(transaction => {
+
+            if (transaction.type !== "EXPENSE") {
+                return false;
+            }
+
+            const transactionDate =
+                new Date(transaction.transactionDate);
+
+            return (
+                transactionDate.getMonth() + 1 === currentMonth &&
+                transactionDate.getFullYear() === currentYear
+            );
+
+        })
+        .reduce(
+            (total, transaction) =>
+                total + Number(transaction.amount),
+            0
+        );
+}
+
+
+    const remaining =
+        budgetAmount - spent;
+
+    let percentage = 0;
+
+    if (budgetAmount > 0) {
+        percentage =
+            (spent / budgetAmount) * 100;
+    }
+
+
+    budgetTotal.textContent =
+        `₹${budgetAmount.toFixed(2)}`;
+
+    budgetSpent.textContent =
+        `₹${spent.toFixed(2)}`;
+
+    budgetRemaining.textContent =
+    `₹${remaining.toFixed(2)}`;
+
+// Remove previous status classes
+budgetProgress.classList.remove(
+    "normal",
+    "warning",
+    "danger"
+);
+
+budgetRemaining.classList.remove(
+    "warning",
+    "danger"
+);
+
+// Set status based on percentage
+if (percentage >= 100) {
+
+    budgetProgress.classList.add("danger");
+    budgetRemaining.classList.add("danger");
+
+} else if (percentage >= 75) {
+
+    budgetProgress.classList.add("warning");
+    budgetRemaining.classList.add("warning");
+
+} else {
+
+    budgetProgress.classList.add("normal");
+}
+
+// Progress bar
+budgetProgress.style.width =
+    `${Math.min(percentage, 100)}%`;
+
+budgetPercentage.textContent =
+    `${percentage.toFixed(1)}% used`;
 }
