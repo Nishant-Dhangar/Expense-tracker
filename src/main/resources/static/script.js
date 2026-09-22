@@ -81,7 +81,7 @@ async function loadTransactions() {
     try {
 
         const response = await fetch(
-            `/api/transactions/user/${USER_ID}`
+          "/api/transactions"
         );
 
         if (!response.ok) {

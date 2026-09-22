@@ -2,6 +2,9 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "transactions")
@@ -19,13 +22,16 @@ public class Transaction {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    private double amount;
+@Positive(message = "Amount must be greater than 0")
+private double amount;
 
-    private String type;
+@NotBlank(message = "Transaction type is required")
+private String type;
 
-    private String description;
+private String description;
 
-    private LocalDate transactionDate;
+@NotNull(message = "Transaction date is required")
+private LocalDate transactionDate;
 
     public Transaction() {
     }

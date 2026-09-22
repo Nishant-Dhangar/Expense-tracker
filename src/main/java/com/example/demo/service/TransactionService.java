@@ -28,6 +28,14 @@ public class TransactionService {
         return transactionRepository.findById(id);
     }
 
+    public Optional<Transaction> getUserTransactionById(
+            Long id,
+            Long userId) {
+
+        return transactionRepository
+                .findByIdAndUserId(id, userId);
+    }
+
     public Transaction updateTransaction(Transaction transaction) {
         return transactionRepository.save(transaction);
     }
