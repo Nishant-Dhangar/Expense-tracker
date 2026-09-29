@@ -18,6 +18,12 @@ The project uses a **Flutter mobile application** and a **web dashboard** connec
 
 > The backend API requires authentication for protected endpoints.
 
+ ### 📱 Mobile App
+
+Flutter Android/iOS application:
+
+https://github.com/Nishant-Dhangar/expense-tracker-mobile
+
 ---
 
 ## ✨ Features
