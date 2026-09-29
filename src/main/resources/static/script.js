@@ -1,3 +1,9 @@
+const API_BASE_URL = "https://expense-tracker-abe2.onrender.com";
+function apiUrl(url) {
+    return url.startsWith("http")
+        ? url
+        : `${API_BASE_URL}${url}`;
+}
 // ==============================
 // CSRF PROTECTION
 // ==============================
@@ -5,7 +11,7 @@
 async function getCsrfToken() {
 
     const response =
-        await fetch("/api/auth/csrf");
+    await fetch(apiUrl("/api/auth/csrf"));
 
     if (!response.ok) {
         throw new Error("Unable to get CSRF token");
@@ -29,10 +35,11 @@ async function secureFetch(url, options = {}) {
     headers["X-XSRF-TOKEN"] =
         token;
 
-    return fetch(url, {
-        ...options,
-        headers: headers
-    });
+    return fetch(apiUrl(url), {
+    ...options,
+    headers: headers,
+    credentials: "include"
+});
 }
 // ==============================
 // CURRENT USER
@@ -53,7 +60,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Get the currently authenticated user
         const response =
-            await fetch("/api/auth/me");
+           await fetch(apiUrl("/api/auth/me"), {
+    credentials: "include"
+});
 
         // User is not logged in
         if (!response.ok) {
@@ -115,9 +124,12 @@ async function loadTransactions() {
 
     try {
 
-        const response = await fetch(
-          "/api/transactions"
-        );
+        const response =await fetch(
+    apiUrl("/api/transactions"),
+    {
+        credentials: "include"
+    }
+);
 
         if (!response.ok) {
             throw new Error("Failed to load transactions");
@@ -319,8 +331,10 @@ async function loadCategories() {
 
     try {
 
-        const response =
-            await fetch("/api/categories");
+       const response =
+    await fetch(apiUrl("/api/categories"), {
+        credentials: "include"
+    });
 
         const categories =
             await response.json();
@@ -499,9 +513,9 @@ async function editTransaction(id) {
     try {
 
         // Get current user's transactions
-        const response = await fetch(
-            "/api/transactions"
-        );
+        const response =await fetch(
+    apiUrl("/api/transactions")
+);
 
         if (!response.ok) {
             throw new Error(
@@ -793,9 +807,12 @@ async function loadBudget() {
 
     try {
 
-        const response = await fetch(
-            `/api/budgets/${year}/${month}`
-        );
+        const response =await fetch(
+    apiUrl(`/api/budgets/${year}/${month}`),
+    {
+        credentials: "include"
+    }
+);
 
         if (response.status === 404) {
             updateBudgetDisplay(0);

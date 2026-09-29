@@ -1,3 +1,8 @@
+const API_BASE_URL = "https://expense-tracker-abe2.onrender.com";
+
+function apiUrl(url) {
+    return `${API_BASE_URL}${url}`;
+}
 // ==============================
 // LOGIN
 // ==============================
@@ -22,9 +27,12 @@ document
         try {
 
             // Get CSRF token
-            const csrfResponse = await fetch(
-                "/api/auth/csrf"
-            );
+  const csrfResponse = await fetch(
+    apiUrl("/api/auth/csrf"),
+    {
+        credentials: "include"
+    }
+);
 
             if (!csrfResponse.ok) {
                 message.textContent =
@@ -38,22 +46,23 @@ document
 
 
             // Login with CSRF token
-            const response = await fetch(
-                "/api/auth/login",
-                {
-                    method: "POST",
+          const response = await fetch(
+    apiUrl("/api/auth/login"),
+    {
+        method: "POST",
+        credentials: "include",
 
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-XSRF-TOKEN": csrfData.token
-                    },
+        headers: {
+            "Content-Type": "application/json",
+            "X-XSRF-TOKEN": csrfData.token
+        },
 
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
-                }
-            );
+        body: JSON.stringify({
+            email: email,
+            password: password
+        })
+    }
+);
 
 
             if (!response.ok) {

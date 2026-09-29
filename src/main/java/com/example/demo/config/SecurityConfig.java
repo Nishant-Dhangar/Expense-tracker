@@ -1,7 +1,10 @@
 package com.example.demo.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -19,6 +22,11 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 
 @Configuration
 @EnableWebSecurity
@@ -60,6 +68,43 @@ public class SecurityConfig {
 
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration =
+                new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of(
+                "https://expense-tracker-web-eight-alpha.vercel.app"
+        ));
+
+        configuration.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        configuration.setAllowedHeaders(List.of(
+                "Content-Type",
+                "X-XSRF-TOKEN"
+        ));
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+                "/api/**",
+                configuration
+        );
+
+        return source;
+    }
+
+
+    @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             SecurityContextRepository securityContextRepository)
@@ -67,11 +112,13 @@ public class SecurityConfig {
 
         http
 
+            .cors(cors -> {})
+
             .csrf(csrf -> csrf
-    .csrfTokenRepository(
-        CookieCsrfTokenRepository.withHttpOnlyFalse()
-    )
-)
+                .csrfTokenRepository(
+                    CookieCsrfTokenRepository.withHttpOnlyFalse()
+                )
+            )
 
 
             .authorizeHttpRequests(auth -> auth
@@ -82,7 +129,6 @@ public class SecurityConfig {
                     "/login.js",
                     "/style.css",
                     "/api/auth/login",
-                    
                     "/api/users/register"
                 ).permitAll()
 
@@ -116,7 +162,6 @@ public class SecurityConfig {
 
 
             .formLogin(form -> form.disable())
-
 
             .httpBasic(basic -> basic.disable());
 
