@@ -117,8 +117,10 @@ public class SecurityConfig {
          * This is useful here because the frontend is hosted
          * on Vercel and the backend is hosted on Render.
          */
-        HttpSessionCsrfTokenRepository csrfRepository =
-                new HttpSessionCsrfTokenRepository();
+    HttpSessionCsrfTokenRepository csrfRepository =
+        new HttpSessionCsrfTokenRepository();
+
+csrfRepository.setHeaderName("X-XSRF-TOKEN");
 
 
         http
