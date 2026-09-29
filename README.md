@@ -163,32 +163,39 @@ Render Spring Boot
    │
    ▼
 Aiven MySQL
+
+
 🛠️ Tech Stack
+
 Backend
-Technology	Purpose
-Java	Backend programming language
-Spring Boot	REST API framework
-Spring Security	Authentication & authorization
-Spring Data JPA	Database access
-Hibernate	ORM
-Jakarta Validation	Request validation
+-Technology	Purpose
+-Java	Backend programming language
+-Spring Boot	REST API framework
+-Spring Security	Authentication & authorization
+-Spring Data JPA	Database access
+-Hibernate	ORM
+-Jakarta Validation	Request validation
+
 Database
-Technology	Purpose
-MySQL	Relational database
-Aiven	Production MySQL hosting
+-Technology	Purpose
+-MySQL	Relational database
+-Aiven	Production MySQL hosting
+
 Frontend
-Technology	Purpose
-Flutter	Android & iOS application
-HTML	Web structure
-CSS	Web styling
-JavaScript	Web application logic
-Chart.js	Dashboard charts
+-Technology	Purpose
+-Flutter	Android & iOS application
+-HTML	Web structure
+-CSS	Web styling
+-JavaScript	Web application logic
+-Chart.js	Dashboard charts
+
 Deployment
-Platform	Purpose
-Render	Spring Boot backend
-Vercel	Web dashboard
-GitHub	Source control
-Aiven	Production database
+-Platform	Purpose
+-Render	Spring Boot backend
+-Vercel	Web dashboard
+-GitHub	Source control
+-Aiven	Production database
+
 🔐 Security Architecture
 
 Security is handled primarily by Spring Security.
@@ -240,13 +247,14 @@ The backend validates incoming requests before processing them.
 
 Examples include:
 
-Required fields
+-Required fields
 Valid email addresses
 Positive transaction amounts
 Valid transaction dates
 Valid budget amounts
 Valid month values
 Description length limits
+
 📡 REST API
 Authentication
 Method	Endpoint	Description
@@ -256,20 +264,24 @@ GET	/api/auth/me	Get current user
 GET	/api/auth/csrf	Get CSRF token
 PUT	/api/auth/profile	Update profile
 POST	/api/auth/logout	Logout
-Transactions
+
+-Transactions
 Method	Endpoint	Description
 GET	/api/transactions	Get user's transactions
 POST	/api/transactions	Create transaction
 PUT	/api/transactions/{id}	Update transaction
 DELETE	/api/transactions/{id}	Delete transaction
-Categories
+
+-Categories
 Method	Endpoint	Description
 GET	/api/categories	Get available categories
-Budgets
+
+-Budgets
 Method	Endpoint	Description
 GET	/api/budgets	Get current user's budget
 POST	/api/budgets	Create/update budget
 DELETE	/api/budgets	Delete budget
+
 🗄️ Database Design
 
 The main database entities are:
@@ -400,20 +412,21 @@ Production secrets such as database credentials are stored as environment variab
 
 The production application has been tested for:
 
-User registration
-Login and logout
-Session persistence
-Protected routes
-CSRF protection
-User data isolation
-Transaction CRUD
-Category validation
-Monthly budgets
-Budget isolation
-Monthly budget calculations
-Web authentication
-Flutter authentication
-Production API connectivity
+-User registration
+-Login and logout
+-Session persistence
+-Protected routes
+-CSRF protection
+-User data isolation
+-Transaction CRUD
+-Category validation
+-Monthly budgets
+-Budget isolation
+-Monthly budget calculations
+-Web authentication
+-Flutter authentication
+-Production API connectivity
+
 📱 Clients
 Flutter Mobile Application
 
@@ -447,15 +460,16 @@ The application is deployed and operational.
 
 Potential future improvements include:
 
-Advanced recurring transactions
-Export transactions to CSV/PDF
-More detailed financial reports
-Custom user categories
-Cloud-based notification preferences
-Advanced search and filtering
-Financial goals
-Improved mobile analytics
-Automated testing and CI/CD improvements
+-Advanced recurring transactions
+-Export transactions to CSV/PDF
+-More detailed financial reports
+-Custom user categories
+-Cloud-based notification preferences
+-Advanced search and filtering
+-Financial goals
+-Improved mobile analytics
+-Automated testing and CI/CD improvements
+
 🔗 Links
 
 Web Dashboard:
