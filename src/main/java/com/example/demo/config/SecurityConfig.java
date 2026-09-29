@@ -20,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -111,20 +111,14 @@ public class SecurityConfig {
             throws Exception {
 
         /*
-         * CSRF configuration
+         * Store CSRF token in the HTTP session instead of
+         * the XSRF-TOKEN cookie.
          *
-         * The frontend is hosted on Vercel while the backend
-         * is hosted on Render, so the CSRF cookie must be allowed
-         * in a cross-site request.
+         * This is useful here because the frontend is hosted
+         * on Vercel and the backend is hosted on Render.
          */
-        CookieCsrfTokenRepository csrfRepository =
-                CookieCsrfTokenRepository.withHttpOnlyFalse();
-
-        csrfRepository.setCookieCustomizer(cookie ->
-                cookie
-                        .sameSite("None")
-                        .secure(true)
-        );
+        HttpSessionCsrfTokenRepository csrfRepository =
+                new HttpSessionCsrfTokenRepository();
 
 
         http
