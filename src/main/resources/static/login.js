@@ -21,13 +21,31 @@ document
 
         try {
 
+            // Get CSRF token
+            const csrfResponse = await fetch(
+                "/api/auth/csrf"
+            );
+
+            if (!csrfResponse.ok) {
+                message.textContent =
+                    "Unable to get security token.";
+
+                return;
+            }
+
+            const csrfData =
+                await csrfResponse.json();
+
+
+            // Login with CSRF token
             const response = await fetch(
                 "/api/auth/login",
                 {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "X-XSRF-TOKEN": csrfData.token
                     },
 
                     body: JSON.stringify({

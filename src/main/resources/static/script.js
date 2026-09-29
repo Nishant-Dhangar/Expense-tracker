@@ -1,4 +1,39 @@
+// ==============================
+// CSRF PROTECTION
+// ==============================
 
+async function getCsrfToken() {
+
+    const response =
+        await fetch("/api/auth/csrf");
+
+    if (!response.ok) {
+        throw new Error("Unable to get CSRF token");
+    }
+
+    const data =
+        await response.json();
+
+    return data.token;
+}
+
+
+async function secureFetch(url, options = {}) {
+
+    const token =
+        await getCsrfToken();
+
+    const headers =
+        options.headers || {};
+
+    headers["X-XSRF-TOKEN"] =
+        token;
+
+    return fetch(url, {
+        ...options,
+        headers: headers
+    });
+}
 // ==============================
 // CURRENT USER
 // ==============================
@@ -147,54 +182,93 @@ function displayTransactions(transactions) {
                 : "income-label";
 
 
-        div.innerHTML = `
+        // Main transaction info
+        const transactionInfo =
+            document.createElement("div");
 
-            <div class="transaction-info">
-
-                <h4>
-                    ${transaction.description}
-                </h4>
-
-                <p>
-                    ${transaction.category.name}
-                    • ${transaction.transactionDate}
-                </p>
-
-                <span class="${typeClass}">
-                    ${transaction.type}
-                </span>
-
-            </div>
+        transactionInfo.className = "transaction-info";
 
 
-            <div class="transaction-actions">
+        const title =
+            document.createElement("h4");
 
-                <span class="${amountClass}">
-                    ${sign} ₹${transaction.amount.toFixed(2)}
-                </span>
+        title.textContent =
+            transaction.description || "No description";
 
-                <button
-                    class="edit-btn"
-                    onclick="editTransaction(${transaction.id})">
-                    Edit
-                </button>
 
-                <button
-                    class="delete-btn"
-                    onclick="deleteTransaction(${transaction.id})">
-                    Delete
-                </button>
+        const details =
+            document.createElement("p");
 
-            </div>
+        details.textContent =
+            `${transaction.category.name} • ${transaction.transactionDate}`;
 
-        `;
 
+        const typeLabel =
+            document.createElement("span");
+
+        typeLabel.className = typeClass;
+
+        typeLabel.textContent =
+            transaction.type;
+
+
+        transactionInfo.appendChild(title);
+        transactionInfo.appendChild(details);
+        transactionInfo.appendChild(typeLabel);
+
+
+        // Transaction actions
+        const transactionActions =
+            document.createElement("div");
+
+        transactionActions.className =
+            "transaction-actions";
+
+
+        const amount =
+            document.createElement("span");
+
+        amount.className = amountClass;
+
+        amount.textContent =
+            `${sign} ₹${transaction.amount.toFixed(2)}`;
+
+
+        const editButton =
+            document.createElement("button");
+
+        editButton.className = "edit-btn";
+        editButton.textContent = "Edit";
+
+        editButton.addEventListener("click", () => {
+            editTransaction(transaction.id);
+        });
+
+
+        const deleteButton =
+            document.createElement("button");
+
+        deleteButton.className = "delete-btn";
+        deleteButton.textContent = "Delete";
+
+        deleteButton.addEventListener("click", () => {
+            deleteTransaction(transaction.id);
+        });
+
+
+        transactionActions.appendChild(amount);
+        transactionActions.appendChild(editButton);
+        transactionActions.appendChild(deleteButton);
+
+
+        // Build complete transaction card
+        div.appendChild(transactionInfo);
+        div.appendChild(transactionActions);
 
         transactionList.appendChild(div);
 
     });
 }
-
 
 // ==============================
 // UPDATE SUMMARY
@@ -332,9 +406,7 @@ document
 
         try {
 
-            const response = await fetch(
-                "/api/transactions",
-                {
+            const response = await secureFetch("/api/transactions", {
                     method: "POST",
 
                     headers: {
@@ -395,9 +467,7 @@ async function deleteTransaction(id) {
 
     try {
 
-        const response = await fetch(
-            `/api/transactions/${id}`,
-            {
+        const response = await secureFetch(`/api/transactions/${id}`, {
                 method: "DELETE"
             }
         );
@@ -428,17 +498,25 @@ async function editTransaction(id) {
 
     try {
 
-        // Get all transactions
+        // Get current user's transactions
         const response = await fetch(
-            `/api/transactions/user/${USER_ID}`
+            "/api/transactions"
         );
 
-        const transactions = await response.json();
+        if (!response.ok) {
+            throw new Error(
+                "Failed to load transactions"
+            );
+        }
+
+        const transactions =
+            await response.json();
 
         // Find the transaction we want to edit
-        const transaction = transactions.find(
-            t => t.id === id
-        );
+        const transaction =
+            transactions.find(
+                t => t.id === id
+            );
 
         if (!transaction) {
             alert("Transaction not found.");
@@ -455,9 +533,20 @@ async function editTransaction(id) {
             return;
         }
 
+        const parsedAmount =
+            parseFloat(newAmount);
+
+        if (
+            isNaN(parsedAmount) ||
+            parsedAmount <= 0
+        ) {
+            alert("Please enter a valid amount.");
+            return;
+        }
+
         const newDescription = prompt(
             "Enter new description:",
-            transaction.description
+            transaction.description || ""
         );
 
         if (newDescription === null) {
@@ -467,51 +556,53 @@ async function editTransaction(id) {
         // Create updated transaction
         const updatedTransaction = {
 
-            user: {
-                id: USER_ID
-            },
-
             category: {
                 id: transaction.category.id
             },
 
-            amount: parseFloat(newAmount),
+            amount: parsedAmount,
 
             type: transaction.type,
 
             description: newDescription,
 
-            transactionDate: transaction.transactionDate
+            transactionDate:
+                transaction.transactionDate
         };
 
-
         // Send PUT request
-        const updateResponse = await fetch(
-            `/api/transactions/${id}`,
-            {
-                method: "PUT",
+        const updateResponse =
+            await secureFetch(`/api/transactions/${id}`, {
+                    method: "PUT",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                body: JSON.stringify(updatedTransaction)
-            }
-        );
-
+                    body: JSON.stringify(
+                        updatedTransaction
+                    )
+                }
+            );
 
         if (!updateResponse.ok) {
+
+            const error =
+                await updateResponse.text();
+
             throw new Error(
+                error ||
                 "Failed to update transaction"
             );
         }
 
-
-        alert("Transaction updated successfully!");
+        alert(
+            "Transaction updated successfully!"
+        );
 
         // Refresh dashboard
-        loadTransactions();
-
+        await loadTransactions();
 
     } catch (error) {
 
@@ -671,9 +762,7 @@ async function logout() {
 
     try {
 
-        await fetch(
-            "/api/auth/logout",
-            {
+        await secureFetch("/api/auth/logout", {
                 method: "POST"
             }
         );
@@ -755,9 +844,7 @@ async function saveBudget() {
 
     try {
 
-        const response = await fetch(
-            "/api/budgets",
-            {
+        const response = await secureFetch("/api/budgets", {
                 method: "POST",
 
                 headers: {

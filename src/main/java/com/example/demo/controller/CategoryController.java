@@ -9,18 +9,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin(origins = "*")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
-    }
-
-    @PostMapping
-    public ResponseEntity<Category> addCategory(@RequestBody Category category) {
-        return ResponseEntity.ok(categoryService.addCategory(category));
     }
 
     @GetMapping

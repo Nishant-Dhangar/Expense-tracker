@@ -2,7 +2,7 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -67,17 +67,22 @@ public class SecurityConfig {
 
         http
 
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf
+    .csrfTokenRepository(
+        CookieCsrfTokenRepository.withHttpOnlyFalse()
+    )
+)
 
 
             .authorizeHttpRequests(auth -> auth
 
                 .requestMatchers(
+                    "/api/auth/csrf",
                     "/login.html",
                     "/login.js",
                     "/style.css",
                     "/api/auth/login",
-                    "/api/auth/logout",
+                    
                     "/api/users/register"
                 ).permitAll()
 

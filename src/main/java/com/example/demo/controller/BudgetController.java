@@ -6,6 +6,12 @@ import com.example.demo.repository.BudgetRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.BudgetService;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +21,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/budgets")
-@CrossOrigin(origins = "*")
 public class BudgetController {
 
     private final BudgetService budgetService;
@@ -32,7 +37,10 @@ public class BudgetController {
         this.budgetRepository = budgetRepository;
     }
 
+    // ==========================================
     // GET CURRENT USER'S BUDGET
+    // ==========================================
+
     @GetMapping("/{year}/{month}")
     public ResponseEntity<?> getBudget(
             @PathVariable Integer year,
@@ -55,14 +63,17 @@ public class BudgetController {
         }
 
         return ResponseEntity.ok(
-        new BudgetResponse(budget.get())
-);
+                new BudgetResponse(budget.get())
+        );
     }
 
+    // ==========================================
     // CREATE OR UPDATE BUDGET
+    // ==========================================
+
     @PostMapping
     public ResponseEntity<?> saveBudget(
-            @RequestBody BudgetRequest request,
+            @Valid @RequestBody BudgetRequest request,
             Authentication authentication) {
 
         User user = userRepository
@@ -79,9 +90,13 @@ public class BudgetController {
         Budget budget;
 
         if (existing.isPresent()) {
+
             budget = existing.get();
+
             budget.setAmount(request.getAmount());
+
         } else {
+
             budget = new Budget(
                     user,
                     request.getMonth(),
@@ -90,14 +105,18 @@ public class BudgetController {
             );
         }
 
-        Budget saved = budgetService.saveBudget(budget);
+        Budget saved =
+                budgetService.saveBudget(budget);
 
         return ResponseEntity.ok(
-        new BudgetResponse(saved)
-);
+                new BudgetResponse(saved)
+        );
     }
 
+    // ==========================================
     // DELETE BUDGET
+    // ==========================================
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBudget(
             @PathVariable Long id,
@@ -114,12 +133,14 @@ public class BudgetController {
             return ResponseEntity.notFound().build();
         }
 
-        // Security check:
         // User can delete only their own budget
-        if (!budget.get().getUser().getId()
+        if (!budget.get()
+                .getUser()
+                .getId()
                 .equals(user.getId())) {
 
-            return ResponseEntity.status(403)
+            return ResponseEntity
+                    .status(403)
                     .body("You cannot delete this budget");
         }
 
@@ -130,11 +151,21 @@ public class BudgetController {
         );
     }
 
+    // ==========================================
     // REQUEST DTO
+    // ==========================================
+
     public static class BudgetRequest {
 
+        @Min(value = 1, message = "Month must be between 1 and 12")
+        @Max(value = 12, message = "Month must be between 1 and 12")
         private Integer month;
+
+        @Min(value = 2000, message = "Invalid year")
         private Integer year;
+
+        @NotNull(message = "Budget amount is required")
+        @Positive(message = "Budget amount must be greater than 0")
         private BigDecimal amount;
 
         public Integer getMonth() {
@@ -161,34 +192,40 @@ public class BudgetController {
             this.amount = amount;
         }
     }
-public static class BudgetResponse {
 
-    private Long id;
-    private Integer month;
-    private Integer year;
-    private BigDecimal amount;
+    // ==========================================
+    // RESPONSE DTO
+    // ==========================================
 
-    public BudgetResponse(Budget budget) {
-        this.id = budget.getId();
-        this.month = budget.getMonth();
-        this.year = budget.getYear();
-        this.amount = budget.getAmount();
+    public static class BudgetResponse {
+
+        private Long id;
+        private Integer month;
+        private Integer year;
+        private BigDecimal amount;
+
+        public BudgetResponse(Budget budget) {
+
+            this.id = budget.getId();
+            this.month = budget.getMonth();
+            this.year = budget.getYear();
+            this.amount = budget.getAmount();
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public Integer getMonth() {
+            return month;
+        }
+
+        public Integer getYear() {
+            return year;
+        }
+
+        public BigDecimal getAmount() {
+            return amount;
+        }
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Integer getMonth() {
-        return month;
-    }
-
-    public Integer getYear() {
-        return year;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-}
 }

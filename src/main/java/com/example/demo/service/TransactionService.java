@@ -24,10 +24,6 @@ public class TransactionService {
         return transactionRepository.findByUserId(userId);
     }
 
-    public Optional<Transaction> getTransactionById(Long id) {
-        return transactionRepository.findById(id);
-    }
-
     public Optional<Transaction> getUserTransactionById(
             Long id,
             Long userId) {
