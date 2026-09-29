@@ -1,122 +1,103 @@
-# Expense Tracker — Spring Boot Backend
+# 💰 Expense Tracker
 
-A secure REST API backend for a full-stack Expense Tracker application.
+A full-stack personal finance application for tracking income, expenses, transactions, and monthly budgets across **Android, iOS, and Web**.
 
-The backend provides authentication, transaction management, categories, monthly budgets, user isolation, and dashboard data for both the Flutter mobile application and the web dashboard.
+The project uses a **Flutter mobile application** and a **web dashboard** connected to a shared **Spring Boot REST API** with **MySQL** as the database.
 
-## 🚀 Live Backend
+---
 
-Backend API:
+## 🌐 Live Demo
 
-https://expense-tracker-abe2.onrender.com
+### Web Dashboard
 
-> The API is protected by Spring Security. Some endpoints require an authenticated session.
+**https://expense-tracker-web-eight-alpha.vercel.app/**
+
+### Backend API
+
+**https://expense-tracker-abe2.onrender.com**
+
+> The backend API requires authentication for protected endpoints.
 
 ---
 
 ## ✨ Features
 
-### Authentication & Security
+### 🔐 Authentication & Security
 
-- User registration
+- User registration and login
 - BCrypt password hashing
-- Email-based authentication
 - Spring Security authentication
 - Session-based authentication
 - CSRF protection
 - Secure logout
 - Protected API endpoints
+- User-specific data isolation
 - Server-side authorization
-- Per-user transaction isolation
-- Per-user budget isolation
-- Input validation
+- Request validation
 - Safe response DTOs
-- Password hashes are never returned through API responses
+- Password hashes never exposed through API responses
 
-### Transaction Management
+### 💸 Transaction Management
 
-Users can:
-
-- Add transactions
-- View their transactions
-- Update transactions
+- Add income and expenses
+- View transaction history
+- Edit transactions
 - Delete transactions
-- Create income transactions
-- Create expense transactions
 - Assign categories
 - Add descriptions
-- Specify transaction dates
+- Select transaction dates
+- Automatic income/expense classification
 
-Transactions belong to the authenticated user and cannot be accessed or modified by another user.
+The backend verifies that a transaction's category matches its transaction type.
 
-### Categories
+### 📊 Dashboard & Analytics
 
-The backend provides predefined categories such as:
+- Total balance
+- Total income
+- Total expenses
+- Income vs. expense analysis
+- Monthly spending trends
+- Month-to-month comparison
+- Savings rate
+- Expense breakdown
+- Recent transactions
 
-- Food
-- Transport
-- Shopping
-- Salary
+### 🎯 Monthly Budgets
 
-Categories are associated with either:
+- Create monthly budgets
+- Update budgets
+- Delete budgets
+- Track monthly spending
+- Calculate remaining budget
+- Budget progress indicators
+- Budget warnings when spending approaches the limit
+- User-specific budget isolation
 
-- `INCOME`
-- `EXPENSE`
+Budget calculations only include the authenticated user's expenses for the selected month and year.
 
-The backend validates that a transaction's type matches its category type.
+### ⚡ Quick Expense
 
-### Monthly Budgets
+The Flutter application includes a **shake-to-open Quick Expense feature**.
 
-Users can:
+Shake the phone → Quick Expense interface opens → enter the expense → save → interface closes.
 
-- Create a monthly budget
-- Update a monthly budget
-- View the current month's budget
-- Delete their budget
-- Track monthly spending against the budget
+This allows users to record an expense without navigating through the entire application.
 
-Budgets are unique per:
+### 🔔 Notifications
 
-```text
-User + Month + Year
-                         ┌─────────────────────┐
-                         │    Flutter App      │
-                         │     Android/iOS     │
-                         └──────────┬──────────┘
-                                    │
-                                    │ REST API
-                                    │
-                         ┌──────────▼──────────┐
-                         │                     │
-                         │    Spring Boot      │
-                         │       API           │
-                         │                     │
-                         │      Render         │
-                         │                     │
-                         └──────────┬──────────┘
-                                    │
-                           JDBC / Hibernate
-                                    │
-                         ┌──────────▼──────────┐
-                         │                     │
-                         │     Aiven MySQL     │
-                         │      Database       │
-                         │                     │
-                         └─────────────────────┘
+The mobile application supports local budget notifications, including alerts when spending reaches important budget thresholds.
 
+### 🎨 User Experience
 
-                         ┌─────────────────────┐
-                         │   Web Dashboard     │
-                         │      Vercel         │
-                         └──────────┬──────────┘
-                                    │
-                              API Proxy
-                                    │
-                         ┌──────────▼──────────┐
-                         │    Spring Boot      │
-                         │       API           │
-                         └─────────────────────┘
-The same backend is shared by both the Flutter application and the web dashboard.
+- Responsive web dashboard
+- Flutter Android/iOS application
+- Dark mode
+- Persistent login session
+- Profile management
+- Notification settings
+- Clean dashboard interface
+
+---
 
 ## 🏗️ Architecture
 
@@ -124,66 +105,124 @@ The same backend is shared by both the Flutter application and the web dashboard
 
 The application uses a shared Spring Boot backend for both the Flutter mobile application and the web dashboard.
 
-##Tech Stack
+```text
+                     ┌──────────────────────┐
+                     │   Flutter App        │
+                     │    Android / iOS     │
+                     └──────────┬───────────┘
+                                │
+                                │ REST API
+                                │
+                     ┌──────────▼───────────┐
+                     │                      │
+                     │   Spring Boot API    │
+                     │       Render         │
+                     │                      │
+                     └──────────┬───────────┘
+                                │
+                           JDBC / JPA
+                                │
+                     ┌──────────▼───────────┐
+                     │                      │
+                     │     Aiven MySQL      │
+                     │                      │
+                     └──────────────────────┘
 
+
+                     ┌──────────────────────┐
+                     │   Web Dashboard      │
+                     │       Vercel         │
+                     └──────────┬───────────┘
+                                │
+                           API Proxy
+                                │
+                                ▼
+                     ┌──────────────────────┐
+                     │   Spring Boot API    │
+                     │       Render         │
+                     └──────────────────────┘
+
+
+Production Flow
+Flutter
+   │
+   ▼
+Render Spring Boot
+   │
+   ▼
+Aiven MySQL
+
+
+Web Browser
+   │
+   ▼
+Vercel
+   │
+   ▼
+Render Spring Boot
+   │
+   ▼
+Aiven MySQL
+🛠️ Tech Stack
 Backend
--Java
--Spring Boot
--Spring Security
--Spring Data JPA
--Hibernate
--Jakarta Persistence
--Jakarta Validation
-
+Technology	Purpose
+Java	Backend programming language
+Spring Boot	REST API framework
+Spring Security	Authentication & authorization
+Spring Data JPA	Database access
+Hibernate	ORM
+Jakarta Validation	Request validation
 Database
--MySQL
--Aiven
-
+Technology	Purpose
+MySQL	Relational database
+Aiven	Production MySQL hosting
+Frontend
+Technology	Purpose
+Flutter	Android & iOS application
+HTML	Web structure
+CSS	Web styling
+JavaScript	Web application logic
+Chart.js	Dashboard charts
 Deployment
--Render
--GitHub
+Platform	Purpose
+Render	Spring Boot backend
+Vercel	Web dashboard
+GitHub	Source control
+Aiven	Production database
+🔐 Security Architecture
 
-Clients
--Flutter Android/iOS application
--HTML/CSS/JavaScript web dashboard
--Vercel
-
-Authentication is handled using Spring Security.
+Security is handled primarily by Spring Security.
 
 Password Security
 
 Passwords are never stored in plain text.
 
-Passwords are hashed using BCrypt before being stored in the database.
 User Password
       │
       ▼
- BCryptPasswordEncoder
+BCryptPasswordEncoder
       │
       ▼
-Hashed Password
+Password Hash
       │
       ▼
-   MySQL
-
+MySQL
 Session Authentication
 
-After successful authentication, the backend creates an authenticated HTTP session.
+After successful login, the backend creates an authenticated HTTP session.
 
-Protected API requests require a valid authenticated session.
+Protected requests require a valid authenticated session.
 
 CSRF Protection
 
 CSRF protection is enabled for state-changing requests.
 
-The frontend obtains a CSRF token before making protected requests and sends it using:
+Clients obtain a CSRF token before making protected requests and send it using:
+
 X-XSRF-TOKEN
+User Data Isolation
 
-Authorization
-
-Transactions and budgets are always associated with the authenticated user.
-
-For example:
+Transactions and budgets are associated with the authenticated user.
 
 User A
  ├── Transactions
@@ -193,50 +232,62 @@ User B
  ├── Transactions
  └── Budget
 
-User A cannot access User B's transaction or budget data.
+A user cannot access another user's transaction or budget data.
 
-API Structure
+Input Validation
 
---Authentication
-POST /api/users/register
-POST /api/auth/login
-GET  /api/auth/me
-GET  /api/auth/csrf
-PUT  /api/auth/profile
-POST /api/auth/logout
+The backend validates incoming requests before processing them.
 
---Transactions
-GET    /api/transactions
-POST   /api/transactions
-PUT    /api/transactions/{id}
-DELETE /api/transactions/{id}
+Examples include:
 
---Categories
-GET /api/categories
+Required fields
+Valid email addresses
+Positive transaction amounts
+Valid transaction dates
+Valid budget amounts
+Valid month values
+Description length limits
+📡 REST API
+Authentication
+Method	Endpoint	Description
+POST	/api/users/register	Register a user
+POST	/api/auth/login	Authenticate user
+GET	/api/auth/me	Get current user
+GET	/api/auth/csrf	Get CSRF token
+PUT	/api/auth/profile	Update profile
+POST	/api/auth/logout	Logout
+Transactions
+Method	Endpoint	Description
+GET	/api/transactions	Get user's transactions
+POST	/api/transactions	Create transaction
+PUT	/api/transactions/{id}	Update transaction
+DELETE	/api/transactions/{id}	Delete transaction
+Categories
+Method	Endpoint	Description
+GET	/api/categories	Get available categories
+Budgets
+Method	Endpoint	Description
+GET	/api/budgets	Get current user's budget
+POST	/api/budgets	Create/update budget
+DELETE	/api/budgets	Delete budget
+🗄️ Database Design
 
---Budgets
-GET    /api/budgets
-POST   /api/budgets
-DELETE /api/budgets
-
-Database Structure
-
-The application uses the following main tables:
+The main database entities are:
 
 users
- │
- ├───────────────┐
- │               │
- ▼               ▼
+  │
+  ├───────────────┐
+  │               │
+  ▼               ▼
 transactions    budgets
- │
- ▼
+  │
+  ▼
 categories
 Users
 
 Stores:
 
-User ID
+ID
 Name
 Email
 BCrypt password hash
@@ -244,14 +295,19 @@ Categories
 
 Stores:
 
-Category ID
-Category name
-Category type
+ID
+Name
+Type
+
+Category types:
+
+INCOME
+EXPENSE
 Transactions
 
 Stores:
 
-Transaction ID
+ID
 User
 Category
 Amount
@@ -262,61 +318,57 @@ Budgets
 
 Stores:
 
-Budget ID
+ID
 User
 Month
 Year
 Amount
+
+A unique constraint prevents multiple budgets for the same user, month, and year.
+
 🔄 Transaction Flow
 Client
-  │
-  │ POST /api/transactions
-  ▼
+   │
+   │ POST /api/transactions
+   ▼
 Spring Security
-  │
-  ├── Authentication check
-  │
-  ├── CSRF validation
-  │
-  ▼
+   │
+   ├── Authentication
+   ├── CSRF validation
+   └── Authorization
+   │
+   ▼
 TransactionController
-  │
-  ├── Identify authenticated user
-  │
-  ├── Validate transaction
-  │
-  ├── Validate category
-  │
-  └── Verify category/type compatibility
-  │
-  ▼
+   │
+   ├── Identify authenticated user
+   ├── Validate request
+   ├── Validate category
+   └── Validate category/type compatibility
+   │
+   ▼
 TransactionService
-  │
-  ▼
+   │
+   ▼
 TransactionRepository
-  │
-  ▼
+   │
+   ▼
 MySQL
+🎯 Budget Calculation
 
-Budget Calculation
+Monthly spending is calculated using:
 
-Monthly spending is calculated using expense transactions belonging to:
-
-Current User
-+
+Authenticated User
+        +
 Current Month
-+
+        +
 Current Year
-+
-Type = EXPENSE
+        +
+EXPENSE transactions
 
-This prevents transactions from other users or previous months from affecting the current budget.
+This ensures that transactions belonging to another user or another month do not affect the budget calculation.
 
-Deployment
+🌐 Deployment
 Backend
-
-The backend is deployed on Render.
-
 GitHub
    │
    ▼
@@ -327,87 +379,99 @@ Spring Boot
    │
    ▼
 Aiven MySQL
+Web Application
+GitHub
+   │
+   ▼
+Vercel
+   │
+   ▼
+Web Dashboard
+   │
+   ▼
+Vercel API Proxy
+   │
+   ▼
+Render Spring Boot API
 
-Environment Variables
+Production secrets such as database credentials are stored as environment variables and are not committed to source control.
 
-Production database credentials are provided through environment variables.
+🧪 Testing
 
-The application does not store production database credentials in source control.
-
-Example configuration:
-
-DB_URL=...
-DB_USERNAME=...
-DB_PASSWORD=...
-SPRING_PROFILES_ACTIVE=prod
-
-esting
-
-The application has been tested for:
+The production application has been tested for:
 
 User registration
-Login/logout
+Login and logout
 Session persistence
 Protected routes
 CSRF protection
-User isolation
+User data isolation
 Transaction CRUD
 Category validation
+Monthly budgets
 Budget isolation
-Monthly budget calculation
+Monthly budget calculations
+Web authentication
+Flutter authentication
 Production API connectivity
-Web dashboard authentication
-Flutter application authentication
-
-Clients
-
-The backend currently serves two clients:
-
-Flutter Mobile App
+📱 Clients
+Flutter Mobile Application
 
 Cross-platform application targeting:
 
 Android
 iOS
 
-The mobile application communicates with the Spring Boot REST API.
+The Flutter application communicates with the shared Spring Boot REST API.
 
 Web Dashboard
 
-A separate web dashboard built using:
+The web client uses:
 
 HTML
 CSS
 JavaScript
 Chart.js
 
-The web application is deployed through Vercel.
+It is deployed through Vercel and communicates with the backend through the Vercel API proxy.
 
-Related Project
-
-Web Dashboard:
-
-https://expense-tracker-web-eight-alpha.vercel.app/
-
-Backend:
-
-https://expense-tracker-abe2.onrender.com
-
-Project Status
+🚀 Project Status
 
 Version: v1.0.0
 
-Status: Stable production release
+Status: Stable Production Release
 
-The application is currently deployed and operational.
+The application is deployed and operational.
 
-Author
+🔮 Future Improvements
 
-Nishant Dhangar
+Potential future improvements include:
+
+Advanced recurring transactions
+Export transactions to CSV/PDF
+More detailed financial reports
+Custom user categories
+Cloud-based notification preferences
+Advanced search and filtering
+Financial goals
+Improved mobile analytics
+Automated testing and CI/CD improvements
+🔗 Links
+
+Web Dashboard:
+https://expense-tracker-web-eight-alpha.vercel.app/
+
+Backend API:
+https://expense-tracker-abe2.onrender.com
 
 GitHub:
-
 https://github.com/Nishant-Dhangar
+
+👨‍💻 Author
+Nishant Dhangar
+
+Computer Science student and developer focused on building full-stack applications using Java, Spring Boot, Flutter, and modern cloud deployment platforms.
+
 
 
 
