@@ -129,10 +129,15 @@ csrfRepository.setHeaderName("X-XSRF-TOKEN");
 
 
             .csrf(csrf -> csrf
-                    .csrfTokenRepository(
-                            csrfRepository
-                    )
-            )
+        .csrfTokenRepository(
+                csrfRepository
+        )
+        .ignoringRequestMatchers(
+                "/api/auth/login",
+                "/api/users/register",
+                "/api/auth/logout"
+        )
+)
 
 
             .authorizeHttpRequests(auth -> auth
